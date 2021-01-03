@@ -70,7 +70,7 @@ uint64_t b62_decode(char * s, size_t len)
     char     *  pos ;
     int         i ;
 
-    if (!s)
+    if (!s || len > 15)
         return 0 ;
 
     p=1;
