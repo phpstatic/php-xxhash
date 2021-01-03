@@ -90,10 +90,9 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_xxhash, 0, 0, 1)
     ZEND_ARG_TYPE_INFO(0, data, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_xxhash_long, 0, 0, 1)
-		ZEND_ARG_TYPE_INFO(0, value, IS_LONG, 0)
+ZEND_BEGIN_ARG_INFO(arginfo_xxhash_long, 0)
+    ZEND_ARG_INFO(0, sum)
 ZEND_END_ARG_INFO()
-
 
 PHP_FUNCTION(xxhash32)
 {
@@ -155,23 +154,6 @@ PHP_FUNCTION(xxhash64_base62)
 	RETURN_STR(strg);
 }
 
-PHP_FUNCTION(base62_encode)
-{
-    zend_long sum;
-    zend_string *strg;
-
-    ZEND_PARSE_PARAMETERS_START(1, 1)
-        Z_PARAM_LONG(sum)
-     ZEND_PARSE_PARAMETERS_END();
-
-	//convert to a hex string
-	strg = strpprintf(0, "%s", b62_encode((uint64_t)sum));
-
-	// return the checksum
-	RETURN_STR(strg);
-}
-
-
 PHP_FUNCTION(base62_decode)
 {
     zend_long sum;
@@ -189,12 +171,29 @@ PHP_FUNCTION(base62_decode)
 	RETURN_LONG(sum);
 }
 
+
+PHP_FUNCTION(base62_encode)
+{
+    zend_long sum;
+    zend_string *strg;
+
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_LONG(sum)
+    ZEND_PARSE_PARAMETERS_END();
+
+	//convert to a hex string
+	strg = strpprintf(0, "%s", b62_encode((uint64_t)sum));
+
+	// return the checksum
+	RETURN_STR(strg);
+}
+
 const zend_function_entry xxhash_functions[] = {
 	ZEND_FE(xxhash32, arginfo_xxhash)
 	ZEND_FE(xxhash64, arginfo_xxhash)
 	ZEND_FE(xxhash64_base62, arginfo_xxhash)
-	ZEND_FE(base62_encode, arginfo_xxhash_long)
 	ZEND_FE(base62_decode, arginfo_xxhash)
+	ZEND_FE(base62_encode, arginfo_xxhash_long)
 	PHP_FE_END
 };
 
