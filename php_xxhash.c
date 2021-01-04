@@ -90,14 +90,17 @@ PHP_FUNCTION(xxhash32)
 {
     zend_string *data;
     zend_string *strg;
-	unsigned int sum;
+	uint64_t sum;
+	uint64_t seed = 0;
 
-    ZEND_PARSE_PARAMETERS_START(1, 1)
+    ZEND_PARSE_PARAMETERS_START(1, 2)
         Z_PARAM_STR(data)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(seed)
     ZEND_PARSE_PARAMETERS_END();
 
 	// compute the checksum
-	sum = XXH32(ZSTR_VAL(data), ZSTR_LEN(data), 0);
+	sum = XXH32(ZSTR_VAL(data), ZSTR_LEN(data), seed);
 
 	//convert to a hex string
 	strg = strpprintf(0, "%08x", sum);
@@ -110,14 +113,17 @@ PHP_FUNCTION(xxhash64)
 {
     zend_string *data;
     zend_string *strg;
-	unsigned long long sum;
+	uint64_t sum;
+	uint64_t seed = 0;
 
-    ZEND_PARSE_PARAMETERS_START(1, 1)
+    ZEND_PARSE_PARAMETERS_START(1, 2)
         Z_PARAM_STR(data)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(seed)
     ZEND_PARSE_PARAMETERS_END();
 
 	// compute the checksum
-	sum = XXH64(ZSTR_VAL(data), ZSTR_LEN(data), 0);
+	sum = XXH64(ZSTR_VAL(data), ZSTR_LEN(data), seed);
 
 	//convert to a hex string
 	strg = strpprintf(0, "%08x%08x", (unsigned int)(sum >> 32), (unsigned int)sum);
@@ -131,13 +137,16 @@ PHP_FUNCTION(xxhash64_base62)
     zend_string *data;
     zend_string *strg;
 	uint64_t sum;
+	uint64_t seed = 0;
 
-    ZEND_PARSE_PARAMETERS_START(1, 1)
+    ZEND_PARSE_PARAMETERS_START(1, 2)
         Z_PARAM_STR(data)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(seed)
     ZEND_PARSE_PARAMETERS_END();
 
 	// compute the checksum
-	sum = XXH64(ZSTR_VAL(data), ZSTR_LEN(data), 0);
+	sum = XXH64(ZSTR_VAL(data), ZSTR_LEN(data), seed);
 
 	//convert to a hex string
 	strg = strpprintf(0, "%s", b62_encode(sum));
@@ -183,10 +192,15 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_xxhash_long, 0, 0, 1)
     ZEND_ARG_TYPE_INFO(0, sum, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_xxhash2, 0, 0, 2)
+    ZEND_ARG_TYPE_INFO(0, data, IS_STRING, 0)
+    ZEND_ARG_TYPE_INFO(0, seed, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
 const zend_function_entry xxhash_functions[] = {
-	ZEND_FE(xxhash32, arginfo_xxhash)
-	ZEND_FE(xxhash64, arginfo_xxhash)
-	ZEND_FE(xxhash64_base62, arginfo_xxhash)
+	ZEND_FE(xxhash32, arginfo_xxhash2)
+	ZEND_FE(xxhash64, arginfo_xxhash2)
+	ZEND_FE(xxhash64_base62, arginfo_xxhash2)
 	ZEND_FE(base62_decode, arginfo_xxhash)
 	ZEND_FE(base62_encode, arginfo_xxhash_long)
 	PHP_FE_END
